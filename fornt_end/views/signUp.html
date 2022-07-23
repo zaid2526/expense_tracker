@@ -76,7 +76,13 @@
         axios.post('http://localhost:8000/register',signUpDetails)
           .then(response=>{
             console.log("logged In",response);
-            alert(`${response.data} is already registered`)
+            console.log(response.data.isSucces);
+            if(response.data.isSucces===false){
+              alert(`${response.data.email} is already exist, Please Login`)
+            }
+            if(response.data.isSucces){
+              alert(`${response.data.user.email} Successfuly signed up`)
+            }
           })
           .catch(err=>{
             console.log(err);

@@ -4,6 +4,7 @@ const signUp=require('../models/sign-up')
 
 exports.postSignUp=(req,res,next)=>{
     // console.log(req.body);
+    // let isSucces;
     const {name,email,phone,password}=req.body
     console.log(name,email,phone,password);
     // bcrypt.hash(password,10).then(data=>{
@@ -14,7 +15,10 @@ exports.postSignUp=(req,res,next)=>{
     signUp.findOne({where:{email:email}})
         .then(data=>{
             if(data){
-               res.json(data.email); 
+               res.json({
+                email:data.email,
+                isSucces:false
+            }); 
             }
             else{
                 return bcrypt.hash(password, 10)
@@ -33,7 +37,10 @@ exports.postSignUp=(req,res,next)=>{
         })
         .then(data=>{
             console.log(data);
-            // res.json(data)
+            res.json({
+                user:data,
+                isSucces:true
+            })
         })
         .catch(err=>{console.log(err);})
 
