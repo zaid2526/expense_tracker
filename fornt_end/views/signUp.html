@@ -7,6 +7,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"></script>
     <title>Document</title>
 </head>
 <body>
@@ -46,14 +47,42 @@
         </div>
         
         <!-- Button -->
-        <div class="form-group">
-          <label class="col-md-4 control-label" for="sign-up"></label>
-          <div class="col-md-4">
-            <button id="sign-up" name="sign-up" class="btn btn-primary">Sign Up</button>
-          </div>
-        </div>
+        
         
 
     </form>
+    <div class="form-group">
+      <label class="col-md-4 control-label" for="sign-up"></label>
+      <div class="col-md-4">
+        <button id="sign-up" name="sign-up" class="btn btn-primary">Sign Up</button>
+      </div>
+    </div>
+    <script>
+      
+      const submit=document.getElementById('sign-up')
+      submit.addEventListener('click',(e)=>{
+        e.preventDefault()
+        const name=document.getElementById('name').value
+        const email=document.getElementById('email').value
+        const phone=document.getElementById('phone').value
+        const password=document.getElementById('password').value
+        const signUpDetails={
+          name:name,
+          email:email,
+          phone:phone,
+          password:password
+
+        }
+        axios.post('http://localhost:8000/register',signUpDetails)
+          .then(response=>{
+            console.log("logged In",response);
+            alert(`${response.data} is already registered`)
+          })
+          .catch(err=>{
+            console.log(err);
+          })
+
+      })
+    </script>
 </body>
 </html>
