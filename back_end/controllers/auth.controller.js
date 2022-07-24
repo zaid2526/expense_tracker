@@ -1,6 +1,12 @@
-const bcrypt=require('bcrypt');
+const  crypto=require('crypto')
 
-const signUp=require('../models/sign-up')
+const bcrypt=require('bcrypt');
+const jwt =require('jsonwebtoken')
+
+
+const SignUp=require('../models/sign-up')
+
+const secretKey=crypto.randomBytes(64).toString('hex');
 
 exports.postSignUp=(req,res,next)=>{
     // console.log(req.body);
@@ -12,7 +18,7 @@ exports.postSignUp=(req,res,next)=>{
     // })
     
 
-    signUp.findOne({where:{email:email}})
+    SignUp.findOne({where:{email:email}})
         .then(data=>{
             if(data){
                res.json({
@@ -27,7 +33,7 @@ exports.postSignUp=(req,res,next)=>{
         })
         .then(encryptedPassword=>{
             // console.log("jsddgs",encryptedPassword);
-            return signUp.create({
+            return SignUp.create({
                 name:name,
                 email:email,
                 phone:phone,
@@ -47,3 +53,49 @@ exports.postSignUp=(req,res,next)=>{
 
     
 }
+
+exports.postLogIn=(req,res,next)=>{
+    const { email, password}=req.body
+    let name;
+    let id;
+    let token;
+    console.log("postLogIn",req.body);
+    SignUp.findOne({where:{email:email }})
+        .then(data=>{
+            if(!data){
+                res.json({email:email,auth:false})
+            }else{
+                id=data.id
+               name=data.name;
+                
+                return bcrypt.compare(password,data.password)
+            }
+            
+        })
+        .then(validPassword=>{
+            console.log("valid",validPassword);
+            token=jwt.sign({id:id},secretKey)
+                // .then(token=>{
+                //     console.log("token Created",token);
+                // })
+                // .catch(err=>{console.log(err);})
+                console.log("token Created",token);
+            if(validPassword===true){
+                res.json({
+                    name:name,
+                    email:email,
+                    auth:true,
+                    secretToken:token
+                })
+            }
+            if(validPassword===false){
+                res.json({
+                    name:name,
+                    email:email,
+                    auth:true,
+                    wrongPassword:true})
+            }
+        })
+        .catch(err=>{console.log(err);})
+}
+

@@ -25,7 +25,8 @@ const SignUp=sequelize.define('signup',{
     password:{
         type:Sequelize.STRING,
         allowNull:false
-    }
+    },
+   
 
 })
 

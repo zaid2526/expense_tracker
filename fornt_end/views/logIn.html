@@ -33,7 +33,7 @@
         <div class="form-group">
             <label class="col-md-4 control-label" for="password">password</label>
             <div class="col-md-5">
-                <input id="password" name="password" type="text" placeholder="PASSWORD" class="form-control input-md">
+                <input type="password" id="password" name="password" type="text" placeholder="PASSWORD" class="form-control input-md">
 
             </div>
         </div>
@@ -54,14 +54,31 @@
 
 
     <script>
-        
+        /*------ Login button ----*/
         const loginBtn=document.getElementById('login-btn')
         loginBtn.addEventListener('click',(event)=>{
             const email=document.getElementById('email').value;
             const password=document.getElementById('password').value;
             console.log("email: ", email);
             console.log("password",password);
+            logInDetails={
+                email:email,
+                password:password
+            }
+            axios.post('http://localhost:8000/login',logInDetails)
+                .then(response=>{
+                    console.log(response);
+                    let {name,email,auth}=response.data
+                    if(auth){
+                        alert(`${name} logged In`)
+                    }
+                    if(!auth){
+                        alert(`Entered Incorrect Password`)
+                    }
+                    
+                }).catch(err=>{console.log(err);})
         })
+        /*------ reset button ----*/
         const resetBtn=document.getElementById('reset-btn')
         resetBtn.addEventListener('click',(event)=>{
             document.getElementById('email').value=''
