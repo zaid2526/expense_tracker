@@ -57,6 +57,7 @@
         /*------ Login button ----*/
         const loginBtn=document.getElementById('login-btn')
         loginBtn.addEventListener('click',(event)=>{
+            
             const email=document.getElementById('email').value;
             const password=document.getElementById('password').value;
             console.log("email: ", email);
@@ -70,7 +71,8 @@
                     console.log(response);
                     let {name,email,auth}=response.data
                     if(auth){
-                        alert(`${name} logged In`)
+                        alert(`${name} logged In`);
+                        window.location.href='./dailyExpenses.html'
                     }
                     if(!auth){
                         alert(`Entered Incorrect Password`)

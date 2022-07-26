@@ -58,6 +58,10 @@
         <button id="sign-up" name="sign-up" class="btn btn-primary">Sign Up</button>
       </div>
     </div>
+    <div style="justify-content: center; padding-left: 34%;">
+      Have an account?
+      <a href="./logIn.html" class="ml-2">LogIn</a>
+  </div>
     <script>
       
       const submit=document.getElementById('sign-up')
@@ -82,7 +86,8 @@
               alert(`${response.data.email} is already exist, Please Login`)
             }
             if(response.data.isSucces){
-              alert(`${response.data.user.email} Successfuly signed up`)
+              alert(`${response.data.user.email} Successfuly signed up`);
+              window.location.href='./login.html'
             }
           })
           .catch(err=>{

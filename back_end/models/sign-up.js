@@ -2,10 +2,9 @@ const Sequelize=require('sequelize');
 
 const sequelize=require('../util/database')
 
-const SignUp=sequelize.define('signup',{
+const SignUp=sequelize.define('register',{
     id: {
         type: Sequelize.INTEGER,
-        // defaultValue: Sequelize.UUIDV4,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true
@@ -26,8 +25,13 @@ const SignUp=sequelize.define('signup',{
         type:Sequelize.STRING,
         allowNull:false
     },
-   
+    token:{
+        type:Sequelize.STRING,
+        allowNull:false
+    },
+    
 
 })
+
 
 module.exports=SignUp;

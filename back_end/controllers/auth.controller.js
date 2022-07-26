@@ -1,4 +1,5 @@
-const  crypto=require('crypto')
+// const  crypto=require('crypto')
+// const secretKey=crypto.randomBytes(64).toString('hex');
 
 const bcrypt=require('bcrypt');
 const jwt =require('jsonwebtoken')
@@ -6,11 +7,10 @@ const jwt =require('jsonwebtoken')
 
 const SignUp=require('../models/sign-up')
 
-const secretKey=crypto.randomBytes(64).toString('hex');
-
 exports.postSignUp=(req,res,next)=>{
     // console.log(req.body);
     // let isSucces;
+    // console.log("req,user",req.user);
     const {name,email,phone,password}=req.body
     console.log(name,email,phone,password);
     // bcrypt.hash(password,10).then(data=>{
@@ -33,11 +33,20 @@ exports.postSignUp=(req,res,next)=>{
         })
         .then(encryptedPassword=>{
             // console.log("jsddgs",encryptedPassword);
+            const token=jwt.sign({email:email},process.env.SECRET_KEY);
+            // console.log("token created",token);
+            res.cookie('jwt',token,{
+                // expires: new Date(Date.now() + 30000),
+                httpOnly:true,
+                secure:true
+            })
+            // console.log("cookie",cookie);
             return SignUp.create({
                 name:name,
                 email:email,
                 phone:phone,
                 password:encryptedPassword,
+                token:token,    
             })
            
         })
@@ -57,15 +66,14 @@ exports.postSignUp=(req,res,next)=>{
 exports.postLogIn=(req,res,next)=>{
     const { email, password}=req.body
     let name;
-    let id;
     let token;
-    console.log("postLogIn",req.body);
+    // console.log("postLogIn",req.body);
     SignUp.findOne({where:{email:email }})
         .then(data=>{
             if(!data){
                 res.json({email:email,auth:false})
             }else{
-                id=data.id
+
                name=data.name;
                 
                 return bcrypt.compare(password,data.password)
@@ -73,13 +81,16 @@ exports.postLogIn=(req,res,next)=>{
             
         })
         .then(validPassword=>{
-            console.log("valid",validPassword);
-            token=jwt.sign({id:id},secretKey)
-                // .then(token=>{
-                //     console.log("token Created",token);
-                // })
-                // .catch(err=>{console.log(err);})
-                console.log("token Created",token);
+            // console.log("valid",validPassword);
+            token=jwt.sign({email:email},process.env.SECRET_KEY)
+               
+            // console.log("token Created",token);
+            res.cookie('jwt',token,{
+                // expires: new Date(Date.now() + 30000),
+                httpOnly:true,
+                secure:true
+            })
+
             if(validPassword===true){
                 res.json({
                     name:name,
@@ -99,3 +110,7 @@ exports.postLogIn=(req,res,next)=>{
         .catch(err=>{console.log(err);})
 }
 
+exports.getLogOut=(req,res,next)=>{
+    res.clearCookie('jwt');
+    res.json({jwt:false})
+}
