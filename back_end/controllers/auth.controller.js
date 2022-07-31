@@ -8,7 +8,7 @@ const jwt =require('jsonwebtoken')
 const SignUp=require('../models/register')
 
 exports.postSignUp=(req,res,next)=>{
-    // console.log("req user",req.userDetails)
+    // console.log("req user",req.user)
     // console.log(req.body);
     // let isSucces;
     // console.log("req,user",req.user);
@@ -121,21 +121,21 @@ exports.getLogOut=(req,res,next)=>{
 }
 
 exports.getexpenses=(req,res,next)=>{
-    const {id}=req.userDetails;
-    req.userDetails.getExpenses().then(expense=>{
+    const {id}=req.user;
+    req.user.getExpenses().then(expense=>{
         console.log();
-        res.json(id)
+        res.json(expense)
     })
         .catch(err=>{console.log(err);})
     
 }
 exports.postExpense=(req,res,next)=>{
-    const user=req.userDetails;
+    const user=req.user;
     console.log("addExpense",user);
     const {expense,description,category}=req.body;
     console.log(expense,description,category);
-    req.userDetails
-        .createExpense({expense,description,category,registerId:req.userDetails.id})
+    req.user
+        .createExpense({expense,description,category,registerId:req.user.id})
         .then(expense=>{
             // console.log("addexpense",user);
             res.json({isSucces:true})

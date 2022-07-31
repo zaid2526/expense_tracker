@@ -10,6 +10,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"></script>
+    <!-- //razorpay -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <title>Daily Expenses</title>
 </head>
 
@@ -18,9 +20,16 @@
         <label class="col-md-4 control-label" for="logout-btn"></label>
         <div class="col-md-pull-4">
             <button style="margin-left: 90%; " id="logout-btn" name="login-btn" class="btn btn-primary">Log Out</button>
-            
+
         </div>
     </div>
+    <div class="form-group">
+        <!-- <label class="col-md-4 control-label" for="logout-btn"></label> -->
+        <div class="col-md-4">
+            <button id="rzp-btn">Buy Premium</button>
+        </div>
+    </div>
+
     <form class="form-horizontal">
 
 
@@ -67,43 +76,62 @@
         </div>
     </div>
 
-    <script>
-        window.addEventListener('load', () => {
-    console.log('loaded');
-    
-    axios.get('http://localhost:8000/expenses').then((expense) => {
-        console.log(expense)
-        
-    })
+    <div id="expnese-list" style="margin-left: 5px;">
 
-})
-        const logOut=document.getElementById('logout-btn')
-        logOut.addEventListener('click',(e)=>{
+    </div>
+    <script>
+
+        window.addEventListener('load', () => {
+            const expenseList = document.getElementById('expnese-list');
+            expenseList.innerHTML = `<h2 > Expense Details </h2>`;
+            console.log('loaded');
+            axios.get('http://localhost:8000/expenses')
+                .then((expenses) => {
+                    console.log(expenses)
+                    expenses.data.forEach(expense => {
+                        const expenseHTML = `
+                <ul id="item-${expense.id}">
+                    <li>id : ${expense.id}</li>
+                    <li>expense:  ${expense.expense}</li>
+                    <li>description ${expense.description}</li>
+                    
+                    <li class="prod-details">
+                       <span> category ${expense.category}</span>
+                    </li>
+                </ul><hr>`
+                        expenseList.innerHTML += expenseHTML
+                    })
+
+                })
+
+        })
+        const logOut = document.getElementById('logout-btn')
+        logOut.addEventListener('click', (e) => {
             axios.get('http://localhost:8000/logout')
-                .then(response=>{
-                    if(response.data.jwt===false){
-                        window.location.href='./login.html'
+                .then(response => {
+                    if (response.data.jwt === false) {
+                        window.location.href = './login.html'
                     }
                 })
-                .catch(err=>{
+                .catch(err => {
                     console.log(err);
                 })
         })
 
-        const submit=document.getElementById('submit-btn')
-        submit.addEventListener('click',(e)=>{
+        const submit = document.getElementById('submit-btn')
+        submit.addEventListener('click', (e) => {
             e.preventDefault();
             // const expense=document.getElementById('spent-money').value;
             // const description=document.getElementById('description').value;
             // const category=document.getElementById('category').value;
-            const expenseDetails={
-                expense:document.getElementById('spent-money').value,
-                description:document.getElementById('description').value,
-                category:document.getElementById('category').value,
+            const expenseDetails = {
+                expense: document.getElementById('spent-money').value,
+                description: document.getElementById('description').value,
+                category: document.getElementById('category').value,
             }
-            axios.post('http://localhost:8000/addExpense',expenseDetails)
-                .then(response=>{
-                    console.log("logged In",response);
+            axios.post('http://localhost:8000/addExpense', expenseDetails)
+                .then(response => {
+                    console.log("logged In", response);
                     console.log(response.data.isSucces);
                     // if(response.data.isSucces===false){
                     //     alert(`${response.data.email} is already exist, Please Login`)
@@ -113,14 +141,66 @@
                     //     window.location.href='./login.html'
                     // }
                 })
-                .catch(err=>{
-                console.log(err);
-            })
+                .catch(err => {
+                    console.log(err);
+                })
 
         })
-    </script>
-    
 
+        const getPremium = document.getElementById('rzp-btn')
+        getPremium.addEventListener('click', (e) => {
+            axios.get('http://localhost:8000/purchase/membership')
+                .then(response => {
+
+                    return response;
+                })
+                .then(response => {
+                    console.log('response', response);
+                    var options = {
+                        "key": response.data.key_id, // Enter the Key ID generated from the Dashboard
+                        "name": "Test Company",
+                        "order_id": response.data.order.orderid, // For one time payment
+                        "prefill": {
+                            "name": "Test User",
+                            "email": "test.user@example.com",
+                            "contact": "7003442036"
+                        },
+                        "theme": {
+                            "color": "#3399cc"
+                        },
+                        "handler": function (response) {
+                            axios.post('http://localhost:8000/purchase/updatetransactionstatus',
+                                {
+                                    order_id: options.order_id,
+                                    payment_id: response.razorpay_payment_id,
+                                })
+                                .then((response) => {
+                                    console.log(response);
+                                    alert('You are a Premium User Now')
+                                })
+                                .catch(() => {
+                                    alert('Something went wrong. Try Again!!!')
+                                })
+                        }
+
+                    }
+                    const rzp1 = new Razorpay(options);
+                    rzp1.open();
+                    e.preventDefault();
+
+                    rzp1.on('payment.failed', function (response) {
+                        alert(response.error.code);
+                        alert(response.error.description);
+                        alert(response.error.source);
+                        alert(response.error.step);
+                        alert(response.error.reason);
+                        alert(response.error.metadata.order_id);
+                        alert(response.error.metadata.payment_id);
+                    });
+                })
+                .catch(err => { console.log(err); })
+        })
+    </script>
 </body>
 
 </html>

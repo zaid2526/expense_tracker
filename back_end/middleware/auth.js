@@ -12,7 +12,7 @@ exports.auth=(req,res,next)=>{
             .then(user=>{
                 
                 // console.log("user",user);
-                req.userDetails=user;
+                req.user=user;
                 next();
             })
             .catch(err=>{console.log(err);})

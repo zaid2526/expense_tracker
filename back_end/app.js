@@ -8,6 +8,11 @@ const cookieParser=require('cookie-parser')
 
 const sequelize = require('./util/database');
 const authRouter=require('./routes/auth.router')
+const purchaseRouter=require('./routes/purchase.router')
+
+const User=require('./models/register');
+const Expense=require('./models/expense')
+const Order=require('./models/order')
 
 const staticPath=path.join(__dirname,'..','fornt_end', 'views');
 console.log(staticPath);
@@ -24,12 +29,17 @@ app.use(cookieParser())
 app.use(express.static(staticPath))
 
 app.use(authRouter)
+app.use('/purchase',purchaseRouter)
 
+Expense.belongsTo(User,{constraints:true,onDelete:'CASCADE'});
+User.hasMany(Expense)
 
+User.hasMany(Order);
+Order.belongsTo(User);
 
 sequelize
     // .sync({alter:true})
-    // .sync({forec:true})
+    // .sync({force:true})
     .sync()
     .then(()=>{
         app.listen(process.env.PORT,()=>{
