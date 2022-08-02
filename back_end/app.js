@@ -9,6 +9,7 @@ const cookieParser=require('cookie-parser')
 const sequelize = require('./util/database');
 const authRouter=require('./routes/auth.router')
 const purchaseRouter=require('./routes/purchase.router')
+const resetPasswordRouter=require('./routes/resetPassword.router')
 
 const User=require('./models/register');
 const Expense=require('./models/expense')
@@ -30,6 +31,7 @@ app.use(express.static(staticPath))
 
 app.use(authRouter)
 app.use('/purchase',purchaseRouter)
+app.use('/password',resetPasswordRouter)
 
 Expense.belongsTo(User,{constraints:true,onDelete:'CASCADE'});
 User.hasMany(Expense)
