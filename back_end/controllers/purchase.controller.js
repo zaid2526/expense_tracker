@@ -2,6 +2,11 @@ require('dotenv').config();
 const RazorPay=require('razorpay');
 const UniqId=require('uniqid');
 
+const Expense=require('../models/expense')
+const User=require('../models/register')
+const Order=require('../models/order')
+const sequelize=require('../util/database')
+
 
 
 
@@ -70,5 +75,31 @@ exports.updateTransactionStatus =(req,res,next)=>{
         res.status(403).json({ errpr: err, message: 'Sometghing went wrong' })
 
     }
+
+}
+
+exports.getLeaderboard=(req,res,next)=>{
+    console.log('laaderboard')
+    Expense.findAll({
+        // attributes: ["id"],
+        
+        attributes: [
+            'registerId', // select the regisetrId column from the expense table
+            // 'expense',  // select the expense column from the expense table
+            [sequelize.fn('count', sequelize.col('registerId')), 'cnt'],
+            [sequelize.fn('SUM', sequelize.col('expense')), 'totalExpenses'],
+            ],
+        include:[{
+            model:User,
+            attributes:['id','name']
+        }],
+        group: "registerId",
+        // order: ["registerId", "ASC"],
+    })
+        .then(expenses=>{
+            // console.log(expenses);
+            res.json(expenses)
+        })
+        .catch(err=>{console.log("findAll",err);})
 
 }

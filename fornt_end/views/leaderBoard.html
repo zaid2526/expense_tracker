@@ -1,0 +1,89 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- bootstraps and jquery cdn -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    
+    
+    <!-- axios cdn -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <h1>leaderBoard</h1>
+
+    <table style="cursor:pointer " id="leaderBoard" class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">Sr.No</th>
+            <th scope="col">Name</th>
+            <th scope="col">No. Of Expenses</th>
+            <th scope="col">Total Expense Amount</th>
+          </tr>
+        </thead>
+        <tbody >
+         
+        </tbody>
+      </table>
+      
+
+
+    <script>
+        const leaderBoard = document.querySelector('#leaderBoard tbody');
+        let count=0
+
+        window.addEventListener('load', () => {
+            // expenseList.innerHTML = `<h2 > Expense Details </h2>`;
+            console.log(leaderBoard);
+            axios.get('http://localhost:8000/purchase/leaderboard')
+                .then((expenses) => {
+                    console.log(expenses);
+                    allExpenses=expenses.data.sort((a,b)=>{
+                        return a.totalExpenses>b.totalExpenses ? -1 : 1
+                    })
+                    console.log(allExpenses)
+                    allExpenses.forEach(data => {
+                        count++
+                        const expenseHTML = `
+                            <tr class="others-data">
+                                <td>${count}</th>
+                                <td>${data.register.name}</td>
+                                <td>${data.cnt}</td>
+                                <td>${data.totalExpenses}</td>
+                                <input type="hidden" id="${data.registerId}" name="">
+                            </tr>
+                        `
+                        leaderBoard.innerHTML+=expenseHTML;
+                    })
+                //     expenses.data.forEach(expense => {
+                //         const expenseHTML = `
+                // <ul id="item-${expense.id}">
+                //     <li>id : ${expense.id}</li>
+                //     <li>expense:  ${expense.expense}</li>
+                //     <li>description ${expense.description}</li>
+                    
+                //     <li class="prod-details">
+                //        <span> category ${expense.category}</span>
+                //     </li>
+                // </ul><hr>`
+                //         expenseList.innerHTML += expenseHTML
+                    // })
+
+                })
+
+        })
+        leaderBoard.addEventListener('click',(e)=>{
+            const userId=e.target.parentNode.lastElementChild;
+            console.log(userId);
+            if(e.target.className=='others-data'){
+                console.log("target",e.target.className)
+
+            }
+        })
+    </script>
+</body>
+</html>
