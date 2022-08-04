@@ -1,11 +1,15 @@
 // const  crypto=require('crypto')
 // const secretKey=crypto.randomBytes(64).toString('hex');
+const fs=require('fs')
 
 const bcrypt=require('bcrypt');
 const jwt =require('jsonwebtoken')
+const AWS=require('aws-sdk')
 
 
-const SignUp=require('../models/register')
+const SignUp=require('../models/register');
+const { resolve } = require('path');
+const { rejects } = require('assert');
 
 exports.postSignUp=(req,res,next)=>{
     // console.log("req user",req.user)
@@ -143,4 +147,72 @@ exports.postExpense=(req,res,next)=>{
         .catch(err=>{console.log(err);})
 
 
+}
+
+
+function uploadToS3(data,fileName){
+    const BUCKET_NAME='expensestrackingapp';
+    const IAM_USER_KEY='^%$^$^&^';
+    const IAM_USER_SECRET='&%&*%^&*%';
+    //these are will be in the .env file
+    let s3Bucket=new AWS.S3({
+        accessKeyId:IAM_USER_KEY,
+        secretAccessKeyId:IAM_USER_SECRET
+    })
+    // s3Bucket.createBucket(()=>{
+        // because we already created the bucket so we don't need to call
+        // s3bucket.createBucket.......
+        var params={
+            Bucket:BUCKET_NAME,//process.env.BUCKET_NAME
+            Key:fileName,
+            Body:data,
+            ACL:'fublic-read' // to make publically doenload with its url
+
+        } 
+        return new Promise((resolve,reject)=>{
+            s3Bucket.upload(params,(err,s3Response)=>{ // it is a async call 
+                if(err){
+                    console.log("something went wrong",err);
+                    reject(err)
+                }else{
+                    console.log("success",s3Response);
+                    // return s3Response.Location;// return the url of the file
+                    resolve(s3Response.Location)
+                }
+            })
+        })
+        
+    // })
+}
+
+exports.getDownloadExpenses=async(req,res)=>{
+    try{
+        const expenses=await req.user.getExpenses();
+    // console.log(expenses);
+    // console.log(req.user.name)
+    const stringifiedExpenses=JSON.stringify(expenses);
+    const fileName=`expenses${req.user.id}/${new Date()}.txt`;
+
+    const fileURL= await uploadToS3(stringifiedExpenses,fileName) // in this, s3Bucket.upload
+        // is a async function so we need to handle this with the promise...
+    res.status(200).json({fileURL,isSucces:true})
+
+
+
+    // fs.writeFile(fileName, stringifiedExpenses, (err, data) => {
+    //     if (err)
+    //         console.log(err);
+    //     else {
+    //         // console.log("File written successfully\n"); 
+    //     }
+    // });
+
+    }catch(err){
+        console.log(err);
+        res.status(500).json({fileURL:'',isSucces:true,err:err})
+    }
+    
+
+
+    
 }

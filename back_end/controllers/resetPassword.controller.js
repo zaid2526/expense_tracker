@@ -7,6 +7,7 @@ const Forgotpassword = require('../models/forgotpassword');
 
 
 
+
 exports.forgotPassword=(req,res,next)=>{
   try{
     console.log(req.body);
@@ -16,12 +17,15 @@ exports.forgotPassword=(req,res,next)=>{
       .then(user=>{
         if(user){
            id = uuid.v4();
+
+          //  console.log("user",user)
           return user.createForgotpassword({ id , active: true })
         }else{
           throw new Error('User doesnt exist')
         }
       })
-      .then(()=>{
+      .then((newPassword)=>{
+        // console.log("newPassword",newPassword);
         sgMail.setApiKey(process.env.FORGOT_PASSWORD_API);
         const msg = {
           to: email, // Change to your recipient
@@ -38,10 +42,10 @@ exports.forgotPassword=(req,res,next)=>{
         
 
       }).then((response) => {
-        console.log(response[0].statusCode)
+        console.log("mail send",response[0].statusCode)
         // console.log(response[0].headers)
         // res.json(response)
-        return res.status(response[0].statusCode).json({message: 'Link to reset password sent to your mail ', sucess: true})
+        return res.status(response[0].statusCode).json({message: 'Link to reset password sent to your mail ', success: true})
       })
   }catch(err){
     console.log(err);
@@ -101,7 +105,6 @@ exports.forgotPassword=(req,res,next)=>{
 // }
 
 exports.resetPassword=(req,res,next)=>{
-  console.log('reset');
   const id =  req.params.id;
   Forgotpassword.findOne({ where : { id }})
     .then(forgotpasswordrequest => {
@@ -133,12 +136,19 @@ exports.updatePassword=(req,res,next)=>{
     const { newpassword } = req.query;
     const { resetpasswordid } = req.params;
     console.log("new",newpassword);
-    console.log("reset",resetpasswordid);
-    Forgotpassword.findOne({ where : { id: resetpasswordid }})
+    
+    Forgotpassword.findAll({
+       where : { id: resetpasswordid },
+       include:[{
+        model:User,
+        attributes:['id','name']
+      }],
+      })
       .then(resetpasswordrequest => {
-        User.findOne({where: { id : resetpasswordrequest.userId}})
+        console.log("reset",resetpasswordrequest);
+        User.findOne({where: { id : resetpasswordrequest.registerId}})
         .then(user => {
-            // console.log('userDetails', user)
+            console.log('userDetails', user)
             if(user) {
                 //encrypt the password
 

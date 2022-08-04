@@ -14,5 +14,7 @@ router.post('/addExpense',Auth.auth,authControllers.postExpense);
 
 router.get('/logout',Auth.auth,authControllers.getLogOut)
 
+router.get('/download',Auth.auth,authControllers.getDownloadExpenses)
+
 
 module.exports= router;

@@ -14,6 +14,7 @@ const resetPasswordRouter=require('./routes/resetPassword.router')
 const User=require('./models/register');
 const Expense=require('./models/expense')
 const Order=require('./models/order')
+const Forgotpassword=require('./models/forgotPassword')
 
 const staticPath=path.join(__dirname,'..','fornt_end', 'views');
 console.log(staticPath);
@@ -36,8 +37,14 @@ app.use('/password',resetPasswordRouter)
 Expense.belongsTo(User,{constraints:true,onDelete:'CASCADE'});
 User.hasMany(Expense)
 
+User.hasMany(Forgotpassword);
+Forgotpassword.belongsTo(User);
+
 User.hasMany(Order);
 Order.belongsTo(User);
+
+
+
 
 sequelize
     // .sync({alter:true})
