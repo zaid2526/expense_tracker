@@ -81,11 +81,15 @@
     </div>
 
     <!-- leaderboard -->
-    <div class="col-md-4"><a href="./leaderBoard.html">
-        <button id="rzp-btn">leaderBoard</button>
-    </a>
-            
-        </div>
+    <div class="col-md-4">
+        <a href="./leaderBoard.html">
+            <button id="rzp-btn">leaderBoard</button>
+        </a>
+    </div>
+    <!-- download file -->
+    <div class="col-md-4">
+            <button id="download-file">Download File</button>
+    </div>
     <script>
 
         window.addEventListener('load', () => {
@@ -207,6 +211,31 @@
                     });
                 })
                 .catch(err => { console.log(err); })
+        })
+    
+        const downloadFile = document.getElementById('download-file');
+        downloadFile.addEventListener('click',async (e)=>{
+            const response=await axios.get('http://localhost:8000/download')
+            console.log(response);
+            
+            // axios.get('http://localhost:3000/user/download', { headers: { "Authorization": token } })
+            //     .then((response) => {
+            //         if (response.status === 201) {
+            //             //the bcakend is essentially sending a download link
+            //             //  which if we open in browser, the file would download
+            //             var a = document.createElement("a");
+            //             a.href = response.data.fileUrl;
+            //             a.download = 'myexpense.csv';
+            //             a.click();
+            //         } else {
+            //             throw new Error(response.data.message)
+            //         }
+
+            //     })
+            //     .catch((err) => {
+            //         showError(err)
+            //     });
+
         })
     </script>
 </body>
