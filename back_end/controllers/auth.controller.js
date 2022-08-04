@@ -126,7 +126,14 @@ exports.getLogOut=(req,res,next)=>{
 
 exports.getexpenses=(req,res,next)=>{
     const {id}=req.user;
-    req.user.getExpenses().then(expense=>{
+    let page=1;
+    let limit=5;
+    // let page= +req.body.page;
+    let offset=0 +(page-1)*limit;
+    req.user.getExpenses({ 
+        offset:offset,
+        limit:limit
+      }).then(expense=>{
         console.log();
         res.json(expense)
     })
