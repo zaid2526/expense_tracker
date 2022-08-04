@@ -8,8 +8,6 @@ const AWS=require('aws-sdk')
 
 
 const SignUp=require('../models/register');
-const { resolve } = require('path');
-const { rejects } = require('assert');
 
 exports.postSignUp=(req,res,next)=>{
     // console.log("req user",req.user)
@@ -140,6 +138,24 @@ exports.getexpenses=(req,res,next)=>{
         .catch(err=>{console.log(err);})
     
 }
+
+exports.getExpensesPaginating=(req,res,next)=>{
+
+
+    let page=1;
+    let limit=+req.body.rows;
+    let offset=0 +(page-1)*limit;
+    req.user.getExpenses({ 
+        offset:offset,
+        limit:limit
+      }).then(expense=>{
+        console.log();
+        res.json(expense)
+    })
+        .catch(err=>{console.log(err);})
+    
+}
+
 exports.postExpense=(req,res,next)=>{
     const user=req.user;
     console.log("addExpense",user);

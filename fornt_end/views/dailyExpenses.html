@@ -76,6 +76,16 @@
         </div>
     </div>
 
+    <div class="form-group">
+        <label class="col-md-4 control-label" for="login-btn">Row Per page</label>
+        <div class="col-md-5">
+            <select id="rows" name="rows" class="form-control">
+                <option value="5">5</option>
+                <option value="10">10 </option>
+                <option value="15">15</option>
+            </select>
+        </div>
+    </div>
     <div id="expnese-list" style="margin-left: 5px;">
 
     </div>
@@ -94,6 +104,7 @@
 
         window.addEventListener('load', () => {
             const expenseList = document.getElementById('expnese-list');
+
             expenseList.innerHTML = `<h2 > Expense Details </h2>`;
             console.log('loaded');
             axios.get('http://localhost:8000/expenses')
@@ -116,6 +127,7 @@
                 })
 
         })
+
 
         const logOut = document.getElementById('logout-btn')
         logOut.addEventListener('click', (e) => {
@@ -235,6 +247,34 @@
             //     .catch((err) => {
             //         showError(err)
             //     });
+
+        })
+
+        const rowsPerPage=document.getElementById('rows');
+        rowsPerPage.addEventListener('change',(e)=>{
+            const rows={rows:document.getElementById('rows').value}
+            console.log(rows);
+            const expenseList = document.getElementById('expnese-list');
+
+            expenseList.innerHTML = `<h2 > Expense Details </h2>`;
+            axios.post('http://localhost:8000/expenses',rows)
+                .then((expenses) => {
+                    console.log(expenses)
+                    expenses.data.forEach(expense => {
+                        const expenseHTML = `
+                <ul id="item-${expense.id}">
+                    <li>id : ${expense.id}</li>
+                    <li>expense:  ${expense.expense}</li>
+                    <li>description ${expense.description}</li>
+                    
+                    <li class="prod-details">
+                       <span> category ${expense.category}</span>
+                    </li>
+                </ul><hr>`
+                        expenseList.innerHTML += expenseHTML
+                    })
+
+                })
 
         })
     </script>
