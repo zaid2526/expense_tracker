@@ -8,6 +8,7 @@ const bodyParser=require('body-parser');
 const cookieParser=require('cookie-parser')
 const helmet=require('helmet');
 const morgan=require('morgan');
+const compression=require('compression')
 
 const sequelize = require('./util/database');
 const authRouter=require('./routes/auth.router')
@@ -38,6 +39,7 @@ app.use(bodyParser.json());
 app.use(cookieParser())
 app.use(express.static(staticPath))
 
+// app.use(compression()) // provided by the hostign provider
 app.use(helmet());
 // app.use(morgan('combined'));// this will logging all the access on the console
 
